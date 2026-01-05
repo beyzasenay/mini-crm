@@ -22,8 +22,9 @@ db.sequelize = sequelize;
 // Modeller
 db.Customer = require('./customer')(sequelize, Sequelize.DataTypes);
 db.Order = require('./order')(sequelize, Sequelize.DataTypes);
+db.Product = require('./product')(sequelize, Sequelize.DataTypes);
 
-// İlişkiler (tam bitmemiş)
+// İlişkiler
 db.Customer.hasMany(db.Order, { foreignKey: 'customerId' });
 db.Order.belongsTo(db.Customer, { foreignKey: 'customerId' });
 
