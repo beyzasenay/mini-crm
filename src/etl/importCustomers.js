@@ -1,9 +1,8 @@
 const fs = require('fs');
-const path = require('path');
+// eslint-disable-next-line node/no-missing-require
 const { parse } = require('csv-parse/sync');
 const { normalizePhone, validateEmail, splitName, normalizeName } = require('./cleaners');
 const db = require('../models');
-const logger = require('../lib/logger');
 
 async function importFromCsv(filePath, options = { dedupe: true }) {
   const content = fs.readFileSync(filePath);

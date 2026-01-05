@@ -6,10 +6,11 @@ async function listProducts() {
     where: { isActive: true },
     limit: 100,
   });
-  return products.map(p => ({
-    ...p.toJSON(),
-    price: parseFloat(p.price),
-  }));
+  return products.map(p =>
+    Object.assign({}, p.toJSON(), {
+      price: parseFloat(p.price),
+    })
+  );
 }
 
 function validatePayload(payload) {
@@ -51,10 +52,9 @@ async function createProduct(payload) {
   };
 
   const product = await Product.create(toCreate);
-  return {
-    ...product.toJSON(),
+  return Object.assign({}, product.toJSON(), {
     price: parseFloat(product.price),
-  };
+  });
 }
 
 async function getProductById(id) {
@@ -64,17 +64,9 @@ async function getProductById(id) {
     err.status = 404;
     throw err;
   }
-  return {
-    ...product.toJSON(),
+  return Object.assign({}, product.toJSON(), {
     price: parseFloat(product.price),
-  };
-}
-
-function formatProductPrice(product) {
-  return {
-    ...product.toJSON(),
-    price: parseFloat(product.price),
-  };
+  });
 }
 
 async function getProductRaw(id) {
@@ -90,7 +82,10 @@ async function getProductRaw(id) {
 async function updateProduct(id, payload) {
   const product = await getProductRaw(id);
 
-  validatePayload({ name: payload.name || product.name, ...payload });
+  const validatePayloadObj = Object.assign({}, payload, {
+    name: payload.name || product.name,
+  });
+  validatePayload(validatePayloadObj);
 
   const toUpdate = {};
   if ('name' in payload) toUpdate.name = payload.name;
@@ -112,7 +107,9 @@ async function updateProduct(id, payload) {
   await product.update(toUpdate);
   logger.info('Updated product', { id, updates: Object.keys(toUpdate) });
   const updated = await Product.findByPk(id);
-  return formatProductPrice(updated);
+  return Object.assign({}, updated.toJSON(), {
+    price: parseFloat(updated.price),
+  });
 }
 
 async function deleteProduct(id) {
@@ -129,7 +126,9 @@ async function decreaseStock(productId, quantity) {
   if (!product.isStockTracking) {
     // Stok takibi yapılmayan ürün; işleme izin ver ama stok değiştirme
     logger.info('Stock tracking disabled for product', { productId });
-    return formatProductPrice(product);
+    return Object.assign({}, product.toJSON(), {
+      price: parseFloat(product.price),
+    });
   }
 
   if (product.stock < quantity) {
@@ -143,7 +142,9 @@ async function decreaseStock(productId, quantity) {
   await product.update({ stock: product.stock - quantity });
   const updated = await Product.findByPk(productId);
   logger.info('Decreased stock', { productId, quantity, newStock: updated.stock });
-  return formatProductPrice(updated);
+  return Object.assign({}, updated.toJSON(), {
+    price: parseFloat(updated.price),
+  });
 }
 
 module.exports = {

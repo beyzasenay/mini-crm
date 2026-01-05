@@ -63,7 +63,7 @@ router.put('/:id', async (req, res, next) => {
 // DELETE /api/customers/:id
 router.delete('/:id', async (req, res, next) => {
   try {
-    const result = await customerService.deleteCustomer(req.params.id);
+    await customerService.deleteCustomer(req.params.id);
     res.status(204).send();
   } catch (err) {
     logger.error('Error deleting customer', { err });

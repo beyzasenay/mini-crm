@@ -14,7 +14,7 @@ async function start() {
     });
   } catch (err) {
     logger.error('Unable to start server', { err });
-    process.exit(1);
+    throw err;
   }
 }
 

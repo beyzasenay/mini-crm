@@ -52,13 +52,13 @@ const envOverrides = {
   },
 };
 
-const merged = { ...base, ...envOverrides[NODE_ENV] };
+const merged = Object.assign({}, base, envOverrides[NODE_ENV]);
 // Deep merge db config
-if (envOverrides[NODE_ENV]?.db) {
-  merged.db = { ...base.db, ...envOverrides[NODE_ENV].db };
+if (envOverrides[NODE_ENV] && envOverrides[NODE_ENV].db) {
+  merged.db = Object.assign({}, base.db, envOverrides[NODE_ENV].db);
 }
-if (envOverrides[NODE_ENV]?.logging) {
-  merged.logging = { ...base.logging, ...envOverrides[NODE_ENV].logging };
+if (envOverrides[NODE_ENV] && envOverrides[NODE_ENV].logging) {
+  merged.logging = Object.assign({}, base.logging, envOverrides[NODE_ENV].logging);
 }
 
 module.exports = merged;
