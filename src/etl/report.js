@@ -5,7 +5,7 @@ function writeReport(report, outPath) {
     total: report.total,
     inserted: report.inserted,
     skipped: report.skipped,
-    errors: report.errors.length
+    errors: report.errors.length,
   };
   const full = { summary, errors: report.errors };
   fs.writeFileSync(outPath, JSON.stringify(full, null, 2));

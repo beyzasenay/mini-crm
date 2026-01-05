@@ -9,7 +9,7 @@ async function importFromCsv(filePath, options = { dedupe: true }) {
   const content = fs.readFileSync(filePath);
   const records = parse(content, {
     columns: true,
-    skip_empty_lines: true
+    skip_empty_lines: true,
   });
 
   const report = { total: records.length, inserted: 0, skipped: 0, errors: [] };
@@ -19,7 +19,11 @@ async function importFromCsv(filePath, options = { dedupe: true }) {
       // map potential headers (support Turkish headers and common variants)
       const get = (...keys) => {
         for (const k of keys) {
-          if (Object.prototype.hasOwnProperty.call(row, k) && row[k] !== undefined && row[k] !== null) {
+          if (
+            Object.prototype.hasOwnProperty.call(row, k) &&
+            row[k] !== undefined &&
+            row[k] !== null
+          ) {
             const v = String(row[k]).trim();
             if (v !== '') return v;
           }
@@ -27,12 +31,24 @@ async function importFromCsv(filePath, options = { dedupe: true }) {
         return null;
       };
 
-      const rawName = get('name', 'Name', 'fullname', 'full_name', 'firstName', 'first_name', 'Ad', 'ad', 'Adı');
+      const rawName = get(
+        'name',
+        'Name',
+        'fullname',
+        'full_name',
+        'firstName',
+        'first_name',
+        'Ad',
+        'ad',
+        'Adı'
+      );
       const rawLast = get('lastName', 'last_name', 'surname', 'Soyad', 'soyad', 'Soyadı');
-      const combinedName = rawName && rawLast ? `${rawName} ${rawLast}` : (rawName || rawLast);
+      const combinedName = rawName && rawLast ? `${rawName} ${rawLast}` : rawName || rawLast;
       const { firstName, lastName } = splitName(combinedName);
 
-      const phone = normalizePhone(get('phone', 'Phone', 'telephone', 'telefon', 'Telefon', 'TelefonNo', 'mobile', 'TelefonNo'));
+      const phone = normalizePhone(
+        get('phone', 'Phone', 'telephone', 'telefon', 'Telefon', 'TelefonNo', 'mobile', 'TelefonNo')
+      );
       const emailRaw = get('email', 'Email', 'mail', 'e-posta', 'eposta');
       const email = validateEmail(emailRaw);
 
@@ -42,7 +58,7 @@ async function importFromCsv(filePath, options = { dedupe: true }) {
         phone: phone || null,
         email: email || null,
         address: get('address', 'Address', 'adres', 'Adres') || null,
-        note: get('note', 'Note', 'not', 'Not') || null
+        note: get('note', 'Note', 'not', 'Not') || null,
       };
 
       // basic validation
@@ -97,7 +113,10 @@ async function detectDuplicate(payload) {
   // Try by name (exact match lowered)
   if (payload.firstName) {
     const found = await db.Customer.findOne({
-      where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('first_name')), payload.firstName.toLowerCase())
+      where: db.Sequelize.where(
+        db.Sequelize.fn('lower', db.Sequelize.col('first_name')),
+        payload.firstName.toLowerCase()
+      ),
     });
     if (found) return found;
   }

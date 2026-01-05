@@ -10,7 +10,7 @@ async function listOrders(filters = {}) {
   return Order.findAll({
     where,
     include: { model: Customer, required: false },
-    limit: 100
+    limit: 100,
   });
 }
 
@@ -87,7 +87,7 @@ async function createOrder(payload) {
   logger.info('Creating order', {
     customerId: payload.customerId,
     guestEmail: payload.guestEmail,
-    itemCount: payload.items.length
+    itemCount: payload.items.length,
   });
 
   const order = await Order.create({
@@ -98,7 +98,7 @@ async function createOrder(payload) {
     guestEmail: payload.guestEmail || null,
     totalAmount: totalAmount,
     status: 'pending',
-    notes: payload.notes || null
+    notes: payload.notes || null,
   });
 
   // Decrease stock for all items
@@ -118,7 +118,7 @@ async function createOrder(payload) {
 
 async function getOrderById(id) {
   const order = await Order.findByPk(id, {
-    include: { model: Customer, required: false }
+    include: { model: Customer, required: false },
   });
   if (!order) {
     const err = new Error('Order not found');
@@ -154,5 +154,5 @@ module.exports = {
   createOrder,
   getOrderById,
   updateOrderStatus,
-  deleteOrder
+  deleteOrder,
 };

@@ -15,10 +15,10 @@ const logger = createLogger({
   format: combine(timestamp(), errors({ stack: true }), json()),
   transports: [
     new transports.Console({
-      format: combine(timestamp(), errors({ stack: true }), consoleFormat)
-    })
+      format: combine(timestamp(), errors({ stack: true }), consoleFormat),
+    }),
   ],
-  exitOnError: false
+  exitOnError: false,
 });
 
 module.exports = logger;

@@ -4,11 +4,11 @@ const logger = require('../lib/logger');
 async function listProducts() {
   const products = await Product.findAll({
     where: { isActive: true },
-    limit: 100
+    limit: 100,
   });
   return products.map(p => ({
     ...p.toJSON(),
-    price: parseFloat(p.price)
+    price: parseFloat(p.price),
   }));
 }
 
@@ -47,13 +47,13 @@ async function createProduct(payload) {
     priceType: payload.priceType || 'fixed',
     isStockTracking: payload.isStockTracking !== undefined ? payload.isStockTracking : true,
     stock: payload.stock || 0,
-    isActive: payload.isActive !== undefined ? payload.isActive : true
+    isActive: payload.isActive !== undefined ? payload.isActive : true,
   };
 
   const product = await Product.create(toCreate);
   return {
     ...product.toJSON(),
-    price: parseFloat(product.price)
+    price: parseFloat(product.price),
   };
 }
 
@@ -66,14 +66,14 @@ async function getProductById(id) {
   }
   return {
     ...product.toJSON(),
-    price: parseFloat(product.price)
+    price: parseFloat(product.price),
   };
 }
 
 function formatProductPrice(product) {
   return {
     ...product.toJSON(),
-    price: parseFloat(product.price)
+    price: parseFloat(product.price),
   };
 }
 
@@ -133,7 +133,9 @@ async function decreaseStock(productId, quantity) {
   }
 
   if (product.stock < quantity) {
-    const err = new Error(`Insufficient stock. Available: ${product.stock}, Requested: ${quantity}`);
+    const err = new Error(
+      `Insufficient stock. Available: ${product.stock}, Requested: ${quantity}`
+    );
     err.status = 409;
     throw err;
   }
@@ -150,5 +152,5 @@ module.exports = {
   getProductById,
   updateProduct,
   deleteProduct,
-  decreaseStock
+  decreaseStock,
 };

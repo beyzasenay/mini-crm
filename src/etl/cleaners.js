@@ -1,4 +1,4 @@
-const normalizePhone = (phone) => {
+const normalizePhone = phone => {
   if (!phone) return null;
   const s = String(phone).trim();
   // remove non-digit characters
@@ -11,14 +11,14 @@ const normalizePhone = (phone) => {
   return digits;
 };
 
-const validateEmail = (email) => {
+const validateEmail = email => {
   if (!email) return false;
   const s = String(email).trim().toLowerCase();
   // simple regex, not RFC full
   return /^\S+@\S+\.\S+$/.test(s) ? s : false;
 };
 
-const splitName = (fullName) => {
+const splitName = fullName => {
   if (!fullName) return { firstName: null, lastName: null };
   const s = String(fullName).trim().replace(/\s+/g, ' ');
   const parts = s.split(' ');
@@ -28,7 +28,7 @@ const splitName = (fullName) => {
   return { firstName, lastName };
 };
 
-const normalizeName = (name) => {
+const normalizeName = name => {
   if (!name) return null;
   return String(name).trim().replace(/\s+/g, ' ');
 };
@@ -37,5 +37,5 @@ module.exports = {
   normalizePhone,
   validateEmail,
   splitName,
-  normalizeName
+  normalizeName,
 };

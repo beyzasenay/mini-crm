@@ -22,7 +22,9 @@ router.post('/', async (req, res, next) => {
   } catch (err) {
     logger.error('Error creating customer', { err });
     if (err.status) {
-      return res.status(err.status).json({ message: err.message, duplicate: err.duplicate || null });
+      return res
+        .status(err.status)
+        .json({ message: err.message, duplicate: err.duplicate || null });
     }
     next(err);
   }
@@ -50,7 +52,9 @@ router.put('/:id', async (req, res, next) => {
   } catch (err) {
     logger.error('Error updating customer', { err });
     if (err.status) {
-      return res.status(err.status).json({ message: err.message, duplicate: err.duplicate || null });
+      return res
+        .status(err.status)
+        .json({ message: err.message, duplicate: err.duplicate || null });
     }
     next(err);
   }

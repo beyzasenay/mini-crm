@@ -4,7 +4,7 @@ const duplicateService = require('./duplicateService');
 
 async function listCustomers() {
   return Customer.findAll({
-    limit: 50 // TODO: pagination eksik
+    limit: 50, // TODO: pagination eksik
   });
 }
 
@@ -36,8 +36,8 @@ async function createCustomer(payload) {
         firstName: duplicate.customer.firstName,
         lastName: duplicate.customer.lastName,
         phone: duplicate.customer.phone,
-        email: duplicate.customer.email
-      }
+        email: duplicate.customer.email,
+      },
     };
     throw err;
   }
@@ -50,7 +50,7 @@ async function createCustomer(payload) {
     lastName: payload.lastName || null,
     phone: payload.phone || null,
     email: payload.email || null,
-    address: payload.address || null
+    address: payload.address || null,
   };
 
   const customer = await Customer.create(toCreate);
@@ -80,7 +80,7 @@ async function updateCustomer(id, payload) {
     const checkPayload = {
       firstName: payload.firstName || customer.firstName,
       lastName: payload.lastName || customer.lastName,
-      phone: payload.phone || customer.phone
+      phone: payload.phone || customer.phone,
     };
     const duplicate = await duplicateService.findDuplicate(checkPayload);
     if (duplicate && duplicate.customer.id !== parseInt(id)) {
@@ -92,8 +92,8 @@ async function updateCustomer(id, payload) {
           id: duplicate.customer.id,
           firstName: duplicate.customer.firstName,
           lastName: duplicate.customer.lastName,
-          phone: duplicate.customer.phone
-        }
+          phone: duplicate.customer.phone,
+        },
       };
       throw err;
     }
@@ -124,5 +124,5 @@ module.exports = {
   createCustomer,
   getCustomerById,
   updateCustomer,
-  deleteCustomer
+  deleteCustomer,
 };
