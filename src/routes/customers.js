@@ -17,17 +17,57 @@ router.get('/', async (req, res, next) => {
 // POST /api/customers
 router.post('/', async (req, res, next) => {
   try {
-    // TODO: request body validation eksik
     const customer = await customerService.createCustomer(req.body);
     res.status(201).json(customer);
   } catch (err) {
     logger.error('Error creating customer', { err });
+    if (err.status) {
+      return res.status(err.status).json({ message: err.message, duplicate: err.duplicate || null });
+    }
     next(err);
   }
 });
 
-// TODO: GET /api/customers/:id
-// TODO: PUT /api/customers/:id
-// TODO: DELETE /api/customers/:id
+// GET /api/customers/:id
+router.get('/:id', async (req, res, next) => {
+  try {
+    const customer = await customerService.getCustomerById(req.params.id);
+    res.json(customer);
+  } catch (err) {
+    logger.error('Error getting customer', { err });
+    if (err.status) {
+      return res.status(err.status).json({ message: err.message });
+    }
+    next(err);
+  }
+});
+
+// PUT /api/customers/:id
+router.put('/:id', async (req, res, next) => {
+  try {
+    const customer = await customerService.updateCustomer(req.params.id, req.body);
+    res.json(customer);
+  } catch (err) {
+    logger.error('Error updating customer', { err });
+    if (err.status) {
+      return res.status(err.status).json({ message: err.message, duplicate: err.duplicate || null });
+    }
+    next(err);
+  }
+});
+
+// DELETE /api/customers/:id
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const result = await customerService.deleteCustomer(req.params.id);
+    res.json(result);
+  } catch (err) {
+    logger.error('Error deleting customer', { err });
+    if (err.status) {
+      return res.status(err.status).json({ message: err.message });
+    }
+    next(err);
+  }
+});
 
 module.exports = router;
