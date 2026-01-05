@@ -21,7 +21,9 @@ app.use('/api/orders', ordersRouter);
 // Hata yakalama (detaysız)
 app.use((err, req, res, next) => {
   logger.error('Unhandled error', { err });
-  res.status(500).json({ message: 'Bir hata oluştu' }); // TODO: error format standardize edilmeli
+  const status = err.status || 500;
+  const message = err.message || 'Bir hata oluştu';
+  res.status(status).json({ message });
 });
 
 module.exports = app;
