@@ -7,7 +7,10 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "jest --runInBand",
-    "migrate": "sequelize db:migrate"
+    "migrate": "sequelize db:migrate",
+    "lint": "eslint \"src/**/*.js\" --ext .js",
+    "lint:fix": "eslint \"src/**/*.js\" --ext .js --fix",
+    "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\" \"*.js\""
   },
   "dependencies": {
     "express": "^4.19.0",
@@ -20,6 +23,13 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "supertest": "^6.3.4",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "eslint": "^8.50.0",
+    "prettier": "^3.0.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.29.5",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-jest": "^27.3.0",
+    "eslint-plugin-prettier": "^5.0.0"
   }
 }
