@@ -2,10 +2,14 @@ const { Product } = require('../models');
 const logger = require('../lib/logger');
 
 async function listProducts() {
-  return Product.findAll({
+  const products = await Product.findAll({
     where: { isActive: true },
     limit: 100
   });
+  return products.map(p => ({
+    ...p.toJSON(),
+    price: parseFloat(p.price)
+  }));
 }
 
 function validatePayload(payload) {
@@ -47,10 +51,33 @@ async function createProduct(payload) {
   };
 
   const product = await Product.create(toCreate);
-  return product;
+  return {
+    ...product.toJSON(),
+    price: parseFloat(product.price)
+  };
 }
 
 async function getProductById(id) {
+  const product = await Product.findByPk(id);
+  if (!product) {
+    const err = new Error('Product not found');
+    err.status = 404;
+    throw err;
+  }
+  return {
+    ...product.toJSON(),
+    price: parseFloat(product.price)
+  };
+}
+
+function formatProductPrice(product) {
+  return {
+    ...product.toJSON(),
+    price: parseFloat(product.price)
+  };
+}
+
+async function getProductRaw(id) {
   const product = await Product.findByPk(id);
   if (!product) {
     const err = new Error('Product not found');
@@ -61,7 +88,7 @@ async function getProductById(id) {
 }
 
 async function updateProduct(id, payload) {
-  const product = await getProductById(id);
+  const product = await getProductRaw(id);
 
   validatePayload({ name: payload.name || product.name, ...payload });
 
@@ -84,11 +111,12 @@ async function updateProduct(id, payload) {
 
   await product.update(toUpdate);
   logger.info('Updated product', { id, updates: Object.keys(toUpdate) });
-  return product;
+  const updated = await Product.findByPk(id);
+  return formatProductPrice(updated);
 }
 
 async function deleteProduct(id) {
-  const product = await getProductById(id);
+  const product = await getProductRaw(id);
   await product.destroy();
   logger.info('Deleted product', { id });
   return { message: 'Product deleted' };
@@ -96,12 +124,12 @@ async function deleteProduct(id) {
 
 // Stok işlemleri (sipariş oluşturma için kullanılacak)
 async function decreaseStock(productId, quantity) {
-  const product = await getProductById(productId);
+  const product = await getProductRaw(productId);
 
   if (!product.isStockTracking) {
     // Stok takibi yapılmayan ürün; işleme izin ver ama stok değiştirme
     logger.info('Stock tracking disabled for product', { productId });
-    return product;
+    return formatProductPrice(product);
   }
 
   if (product.stock < quantity) {
@@ -111,8 +139,9 @@ async function decreaseStock(productId, quantity) {
   }
 
   await product.update({ stock: product.stock - quantity });
-  logger.info('Decreased stock', { productId, quantity, newStock: product.stock - quantity });
-  return product;
+  const updated = await Product.findByPk(productId);
+  logger.info('Decreased stock', { productId, quantity, newStock: updated.stock });
+  return formatProductPrice(updated);
 }
 
 module.exports = {

@@ -27,11 +27,19 @@ const base = {
 const envOverrides = {
   test: {
     db: {
+      dialect: 'postgres',
+      host: process.env.DB_HOST || '127.0.0.1',
+      port: Number(process.env.DB_PORT) || 5432,
       database: process.env.DB_NAME || 'mini_crm_test',
+      username: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASS || 'postgres',
       logging: false
     },
     app: {
       port: Number(process.env.APP_PORT) || 3001
+    },
+    logging: {
+      level: 'error'
     }
   },
   production: {
@@ -44,6 +52,13 @@ const envOverrides = {
   }
 };
 
-const merged = Object.assign({}, base, envOverrides[NODE_ENV] || {});
+const merged = { ...base, ...envOverrides[NODE_ENV] };
+// Deep merge db config
+if (envOverrides[NODE_ENV]?.db) {
+  merged.db = { ...base.db, ...envOverrides[NODE_ENV].db };
+}
+if (envOverrides[NODE_ENV]?.logging) {
+  merged.logging = { ...base.logging, ...envOverrides[NODE_ENV].logging };
+}
 
 module.exports = merged;

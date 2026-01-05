@@ -57,6 +57,14 @@ async function findDuplicate(payload) {
     if (byPhone) return { reason: 'phone', customer: byPhone };
   }
 
+  // Check for email duplicate
+  if (payload.email) {
+    const byEmail = await Customer.findOne({
+      where: { email: payload.email.toLowerCase() }
+    });
+    if (byEmail) return { reason: 'email', customer: byEmail };
+  }
+
   const byName = await findByName(payload.firstName, payload.lastName);
   if (byName) return { reason: 'name', customer: byName };
 

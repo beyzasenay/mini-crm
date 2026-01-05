@@ -60,7 +60,7 @@ router.put('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
   try {
     const result = await customerService.deleteCustomer(req.params.id);
-    res.json(result);
+    res.status(204).send();
   } catch (err) {
     logger.error('Error deleting customer', { err });
     if (err.status) {
