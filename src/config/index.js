@@ -1,18 +1,49 @@
-require('dotenv').config();
+// Load .env in non-production environments
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
-module.exports = {
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+const base = {
   app: {
-    port: process.env.APP_PORT || 3000,
-    // TODO: environment ayrımı (dev, test, prod) henüz tam düşünülmedi
-    env: process.env.NODE_ENV || 'development'
+    env: NODE_ENV,
+    port: Number(process.env.APP_PORT) || 3000
   },
   db: {
-    host: process.env.DB_HOST || '127.0.0.1', // prod'da böyle olmamalı aslında
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'mini_crm', // env ile tutarsız
+    dialect: 'postgres',
+    host: process.env.DB_HOST || '127.0.0.1',
+    port: Number(process.env.DB_PORT) || 5432,
+    database: process.env.DB_NAME || 'mini_crm',
     username: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASS || null,
-    dialect: 'postgres',
-    logging: false // TODO: loglama ile entegre edilecek
+    logging: false
+  },
+  logging: {
+    level: process.env.LOG_LEVEL || (NODE_ENV === 'production' ? 'info' : 'debug')
   }
 };
+
+const envOverrides = {
+  test: {
+    db: {
+      database: process.env.DB_NAME || 'mini_crm_test',
+      logging: false
+    },
+    app: {
+      port: Number(process.env.APP_PORT) || 3001
+    }
+  },
+  production: {
+    app: {
+      port: Number(process.env.APP_PORT) || 80
+    },
+    db: {
+      logging: false
+    }
+  }
+};
+
+const merged = Object.assign({}, base, envOverrides[NODE_ENV] || {});
+
+module.exports = merged;
