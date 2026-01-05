@@ -7,19 +7,42 @@ module.exports = (sequelize, DataTypes) => {
     },
     customerId: {
       type: DataTypes.INTEGER,
-      allowNull: false
-      // TODO: foreign key constraint migration tarafında eksik gibi
+      allowNull: true // kayıtsız müşteri ile sipariş için
+    },
+    guestFirstName: {
+      type: DataTypes.STRING,
+      allowNull: true // kayıtsız müşteri adı
+    },
+    guestLastName: {
+      type: DataTypes.STRING,
+      allowNull: true // kayıtsız müşteri soyadı
+    },
+    guestPhone: {
+      type: DataTypes.STRING,
+      allowNull: true // kayıtsız müşteri telefon
+    },
+    guestEmail: {
+      type: DataTypes.STRING,
+      allowNull: true // kayıtsız müşteri email
     },
     status: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('pending', 'processing', 'shipped', 'cancelled', 'completed'),
       allowNull: false,
-      defaultValue: 'pending' // müşteri 'hazırlanıyor' demişti, sync değil
+      defaultValue: 'pending'
     },
     totalAmount: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: true // nullable bırakılmış
+      allowNull: false,
+      defaultValue: 0.0
     },
-    // TODO: sipariş kalemleri için ayrı tablo düşünülmüş ama yapılmamış
+    notes: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    }
   }, {
     tableName: 'orders',
     underscored: true

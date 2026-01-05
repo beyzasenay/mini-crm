@@ -3,6 +3,7 @@ const logger = require('./lib/logger');
 
 const customersRouter = require('./routes/customers');
 const ordersRouter = require('./routes/orders');
+const productsRouter = require('./routes/products');
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use((req, res, next) => {
 
 app.use('/api/customers', customersRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/products', productsRouter);
 
 // Hata yakalama (detaysız)
 app.use((err, req, res, next) => {
