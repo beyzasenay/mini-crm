@@ -3,7 +3,10 @@ const { Op } = require('sequelize');
 
 function normalizePhone(phone) {
   if (!phone) return null;
-  return phone.toString().replace(/[^0-9]/g, '').replace(/^0+/, '');
+  return phone
+    .toString()
+    .replace(/[^0-9]/g, '')
+    .replace(/^0+/, '');
 }
 
 function normalizeName(name) {
@@ -17,9 +20,9 @@ async function findByPhone(normalizedPhone) {
   const candidates = await Customer.findAll({
     where: {
       phone: {
-        [Op.ne]: null
-      }
-    }
+        [Op.ne]: null,
+      },
+    },
   });
 
   for (const c of candidates) {
@@ -36,13 +39,19 @@ async function findByName(firstName, lastName) {
 
   const where = {
     [Op.and]: [
-      Customer.sequelize.where(Customer.sequelize.fn('lower', Customer.sequelize.col('first_name')), f)
-    ]
+      Customer.sequelize.where(
+        Customer.sequelize.fn('lower', Customer.sequelize.col('first_name')),
+        f
+      ),
+    ],
   };
 
   if (l) {
     where[Op.and].push(
-      Customer.sequelize.where(Customer.sequelize.fn('lower', Customer.sequelize.col('last_name')), l)
+      Customer.sequelize.where(
+        Customer.sequelize.fn('lower', Customer.sequelize.col('last_name')),
+        l
+      )
     );
   }
 
@@ -57,6 +66,14 @@ async function findDuplicate(payload) {
     if (byPhone) return { reason: 'phone', customer: byPhone };
   }
 
+  // Check for email duplicate
+  if (payload.email) {
+    const byEmail = await Customer.findOne({
+      where: { email: payload.email.toLowerCase() },
+    });
+    if (byEmail) return { reason: 'email', customer: byEmail };
+  }
+
   const byName = await findByName(payload.firstName, payload.lastName);
   if (byName) return { reason: 'name', customer: byName };
 
@@ -66,5 +83,5 @@ async function findDuplicate(payload) {
 module.exports = {
   normalizePhone,
   normalizeName,
-  findDuplicate
+  findDuplicate,
 };

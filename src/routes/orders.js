@@ -66,8 +66,8 @@ router.put('/:id/status', async (req, res, next) => {
 // DELETE /api/orders/:id
 router.delete('/:id', async (req, res, next) => {
   try {
-    const result = await orderService.deleteOrder(req.params.id);
-    res.json(result);
+    await orderService.deleteOrder(req.params.id);
+    res.status(204).send();
   } catch (err) {
     logger.error('Error deleting order', { err });
     if (err.status) {

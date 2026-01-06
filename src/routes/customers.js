@@ -22,7 +22,9 @@ router.post('/', async (req, res, next) => {
   } catch (err) {
     logger.error('Error creating customer', { err });
     if (err.status) {
-      return res.status(err.status).json({ message: err.message, duplicate: err.duplicate || null });
+      return res
+        .status(err.status)
+        .json({ message: err.message, duplicate: err.duplicate || null });
     }
     next(err);
   }
@@ -50,7 +52,9 @@ router.put('/:id', async (req, res, next) => {
   } catch (err) {
     logger.error('Error updating customer', { err });
     if (err.status) {
-      return res.status(err.status).json({ message: err.message, duplicate: err.duplicate || null });
+      return res
+        .status(err.status)
+        .json({ message: err.message, duplicate: err.duplicate || null });
     }
     next(err);
   }
@@ -59,8 +63,8 @@ router.put('/:id', async (req, res, next) => {
 // DELETE /api/customers/:id
 router.delete('/:id', async (req, res, next) => {
   try {
-    const result = await customerService.deleteCustomer(req.params.id);
-    res.json(result);
+    await customerService.deleteCustomer(req.params.id);
+    res.status(204).send();
   } catch (err) {
     logger.error('Error deleting customer', { err });
     if (err.status) {

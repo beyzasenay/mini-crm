@@ -21,7 +21,7 @@ app.use('/api/orders', ordersRouter);
 app.use('/api/products', productsRouter);
 
 // Hata yakalama (iyileştirilmiş)
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   const status = err.status || 500;
   const message = err.message || 'Bir hata oluştu';
   const trace = req.traceId || null;

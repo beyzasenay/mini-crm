@@ -2,10 +2,15 @@ const { Product } = require('../models');
 const logger = require('../lib/logger');
 
 async function listProducts() {
-  return Product.findAll({
+  const products = await Product.findAll({
     where: { isActive: true },
-    limit: 100
+    limit: 100,
   });
+  return products.map(p =>
+    Object.assign({}, p.toJSON(), {
+      price: parseFloat(p.price),
+    })
+  );
 }
 
 function validatePayload(payload) {
@@ -43,14 +48,28 @@ async function createProduct(payload) {
     priceType: payload.priceType || 'fixed',
     isStockTracking: payload.isStockTracking !== undefined ? payload.isStockTracking : true,
     stock: payload.stock || 0,
-    isActive: payload.isActive !== undefined ? payload.isActive : true
+    isActive: payload.isActive !== undefined ? payload.isActive : true,
   };
 
   const product = await Product.create(toCreate);
-  return product;
+  return Object.assign({}, product.toJSON(), {
+    price: parseFloat(product.price),
+  });
 }
 
 async function getProductById(id) {
+  const product = await Product.findByPk(id);
+  if (!product) {
+    const err = new Error('Product not found');
+    err.status = 404;
+    throw err;
+  }
+  return Object.assign({}, product.toJSON(), {
+    price: parseFloat(product.price),
+  });
+}
+
+async function getProductRaw(id) {
   const product = await Product.findByPk(id);
   if (!product) {
     const err = new Error('Product not found');
@@ -61,9 +80,12 @@ async function getProductById(id) {
 }
 
 async function updateProduct(id, payload) {
-  const product = await getProductById(id);
+  const product = await getProductRaw(id);
 
-  validatePayload({ name: payload.name || product.name, ...payload });
+  const validatePayloadObj = Object.assign({}, payload, {
+    name: payload.name || product.name,
+  });
+  validatePayload(validatePayloadObj);
 
   const toUpdate = {};
   if ('name' in payload) toUpdate.name = payload.name;
@@ -84,11 +106,14 @@ async function updateProduct(id, payload) {
 
   await product.update(toUpdate);
   logger.info('Updated product', { id, updates: Object.keys(toUpdate) });
-  return product;
+  const updated = await Product.findByPk(id);
+  return Object.assign({}, updated.toJSON(), {
+    price: parseFloat(updated.price),
+  });
 }
 
 async function deleteProduct(id) {
-  const product = await getProductById(id);
+  const product = await getProductRaw(id);
   await product.destroy();
   logger.info('Deleted product', { id });
   return { message: 'Product deleted' };
@@ -96,23 +121,30 @@ async function deleteProduct(id) {
 
 // Stok işlemleri (sipariş oluşturma için kullanılacak)
 async function decreaseStock(productId, quantity) {
-  const product = await getProductById(productId);
+  const product = await getProductRaw(productId);
 
   if (!product.isStockTracking) {
     // Stok takibi yapılmayan ürün; işleme izin ver ama stok değiştirme
     logger.info('Stock tracking disabled for product', { productId });
-    return product;
+    return Object.assign({}, product.toJSON(), {
+      price: parseFloat(product.price),
+    });
   }
 
   if (product.stock < quantity) {
-    const err = new Error(`Insufficient stock. Available: ${product.stock}, Requested: ${quantity}`);
+    const err = new Error(
+      `Insufficient stock. Available: ${product.stock}, Requested: ${quantity}`
+    );
     err.status = 409;
     throw err;
   }
 
   await product.update({ stock: product.stock - quantity });
-  logger.info('Decreased stock', { productId, quantity, newStock: product.stock - quantity });
-  return product;
+  const updated = await Product.findByPk(productId);
+  logger.info('Decreased stock', { productId, quantity, newStock: updated.stock });
+  return Object.assign({}, updated.toJSON(), {
+    price: parseFloat(updated.price),
+  });
 }
 
 module.exports = {
@@ -121,5 +153,5 @@ module.exports = {
   getProductById,
   updateProduct,
   deleteProduct,
-  decreaseStock
+  decreaseStock,
 };

@@ -59,10 +59,24 @@ router.put('/:id', async (req, res, next) => {
 // DELETE /api/products/:id
 router.delete('/:id', async (req, res, next) => {
   try {
-    const result = await productService.deleteProduct(req.params.id);
-    res.json(result);
+    await productService.deleteProduct(req.params.id);
+    res.status(204).send();
   } catch (err) {
     logger.error('Error deleting product', { err });
+    if (err.status) {
+      return res.status(err.status).json({ message: err.message });
+    }
+    next(err);
+  }
+});
+
+// POST /api/products/:id/decrease-stock
+router.post('/:id/decrease-stock', async (req, res, next) => {
+  try {
+    const product = await productService.decreaseStock(req.params.id, req.body.quantity);
+    res.json(product);
+  } catch (err) {
+    logger.error('Error decreasing product stock', { err });
     if (err.status) {
       return res.status(err.status).json({ message: err.message });
     }
