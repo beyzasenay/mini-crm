@@ -2,6 +2,7 @@ const express = require('express');
 const logger = require('./lib/logger');
 const traceId = require('./middleware/traceId');
 const httpLogger = require('./middleware/httpLogger');
+const { swaggerUiExpress, specs } = require('./config/swagger');
 
 const customersRouter = require('./routes/customers');
 const ordersRouter = require('./routes/orders');
@@ -15,6 +16,9 @@ app.use(express.json());
 // Trace ID and HTTP logging
 app.use(traceId);
 app.use(httpLogger);
+
+// Swagger API dokümantasyonu
+app.use('/api-docs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
 app.use('/api/customers', customersRouter);
 app.use('/api/orders', ordersRouter);
